@@ -4,7 +4,6 @@
     --text-light: #FFFFFF;
     --text-muted: #9E9E9E;
     --accent-color: #00FF1A;
-
 }
 
 * {
@@ -12,7 +11,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', sans-serif;
-
 }
 
 body {
@@ -20,6 +18,7 @@ body {
     color: var(--text-light);
 }
 
+/* Encabezado principal */
 .main-header {
     text-align: center;
     padding: 2rem;
@@ -27,15 +26,16 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-.app-tittle {
+.app-title {
     margin-bottom: 1rem;
 }
 
-/*Menu de botones*/
+/* Menu de botones */
 .nav-bar {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    gap: 10px;
     margin-top: 1rem;
 }
 
@@ -67,7 +67,7 @@ body {
     color: var(--bg-dark);
 }
 
-/*Cuadricula para las tarjetas*/
+/* Cuadricula de las tarjetas */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -75,19 +75,20 @@ body {
     padding: 3rem;
 }
 
-/* diseño de la tarjeta (card) */
-.data.card {
+/* Diseño de las tarjetas */
+.data-card {
     background: var(--card-bg);
     border-radius: 10px;
     overflow: hidden;
     transition: transform 0.2s;
 }
 
-.data.card:hover {
+.data-card:hover {
     transform: translateY(-5px);
 }
 
-.data.card img {
+.data-card img {
+    display: block;
     width: 100%;
     height: 250px;
     object-fit: cover;
@@ -108,23 +109,26 @@ body {
     margin-bottom: 5px;
 }
 
-/*Boton de favoritos internos*/
+/* Boton de favoritos */
 .btn-add-fav {
     background: #444;
-    border: white;
+    color: white;
+    border: 1px solid white;
     padding: 8px;
     width: 100%;
-    margin-top: 100%;
+    margin-top: 12px;
     border-radius: 5px;
     cursor: pointer;
+    transition: 0.3s;
 }
 
 .btn-add-fav:hover {
     background: gold;
     color: black;
+    border-color: gold;
 }
 
-/*mensajes y footer*/
+/* Mensajes de carga */
 .loading-text {
     text-align: center;
     width: 100%;
@@ -133,9 +137,26 @@ body {
     color: var(--accent-color);
 }
 
+/* Pie de pagina */
 .dynamic-footer {
     text-align: center;
     padding: 2rem;
     background: #1a1c20;
     margin-top: 2rem;
+}
+
+/* Adaptacion para celulares */
+@media (max-width: 600px) {
+    .main-header {
+        padding: 1.5rem 1rem;
+    }
+
+    .grid-container {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+
+    .nav-btn {
+        padding: 0.5rem 1rem;
+    }
 }
