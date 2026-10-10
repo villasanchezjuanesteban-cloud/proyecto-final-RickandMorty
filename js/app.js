@@ -1,177 +1,229 @@
-//================================================
-//1.FIRMA DEL DESARROLLADOR Y VARIABLES GLOBALES
-//================================================
-//Escribe tu nombre y documento exacto. Esto personalizara la aplicacion.
-const developeName = "JUAN ESTEBAN VILLA SANCHEZ"
-const developeId = "667890"
-const baseUrl = "https://rickandmortyapi.com/api"
+// ================================================
+// 1. FIRMA DEL DESARROLLADOR Y VARIABLES GLOBALES
+// ================================================
 
-//Arreglo para guardar los favoritos (los usaremos mas adelante)
+const developeName = "JUAN ESTEBAN VILLA SANCHEZ";
+const developeId = "667890";
+const baseUrl = "https://rickandmortyapi.com/api";
+
+// Arreglo para guardar los favoritos
 let favoritesArray = [];
 
-//================================================
-//2. SECCION DE ELEMENTOS DEL DOM
-//================================================
-const dataContainer = document.getElementByid('dataContainer');
-const btnCharacters = document.getElementByid('btnCharacters');
-const btnLocations = document.getElementByid('btnLocations');
-const btnEpisodes = document.getElementByid('btnEpisodes');
-const btnFavorites = document.getElementByid('btnFavorites');
-const mainFooter = document.getElementByid('mainFooter');
+// ================================================
+// 2. SECCION DE ELEMENTOS DEL DOM
+// ================================================
 
-//================================================
-//3. INYECCION DINAMICA DE LA FIRMA (FOOTER)
-//================================================
-// Modificamos el contenido del footer en tiempo real
-mainFooter.innerHtml =`<p>Developed with 💻 by <strong${developeName}</strong>(ID: ${developerId})</p>`;
+const dataContainer = document.getElementById('dataContainer');
+const btnCharacters = document.getElementById('btnCharacters');
+const btnLocations = document.getElementById('btnLocations');
+const btnEpisodes = document.getElementById('btnEpisodes');
+const btnFavorites = document.getElementById('btnFavorites');
+const mainFooter = document.getElementById('mainFooter');
 
-//================================================
-//4. FUNCION PARA OBTENER DATOS (ASINCRONIA)
-//================================================  
-//Recibe el "endpoint" para que datos buscar (/character,/location,/episode)
+// ================================================
+// 3. INYECCION DINAMICA DE LA FIRMA (FOOTER)
+// ================================================
+
+mainFooter.innerHTML = `
+    <p>Developed with 💻 by
+    <strong>${developeName}</strong> (ID: ${developeId})</p>
+`;
+
+// ================================================
+// 4. FUNCION PARA OBTENER DATOS (ASINCRONIA)
+// ================================================
+
 async function fetchData(endpoint) {
-   try {
-      //Mostramos un mensaje de carga, mientras llegan los datos
-      dataContainer.innerHtml = '<p class="loading-text">Loading multiverse data...</p>';
+    try {
+        dataContainer.innerHTML =
+            '<p class="loading-text">Loading multiverse data...</p>';
 
-      //Hacemos la peticion a la API
-      const response= await fetch(`${baseUrl}${endpoint}`);
-      const data = await response.json();
+        const response = await fetch(`${baseUrl}${endpoint}`);
 
-      //La api Rick and Morty guarda los items dentro de una propiedad llamada "results"
-      return data.results;
+        if (!response.ok) {
+            throw new Error('Could not get data from the API');
+        }
 
+        const data = await response.json();
+
+        return data.results;
 
     } catch (error) {
-        console.error("Error: ", error);
-        dataContainer.innerHtml = 
-                    '<p class="loading--text" style="color: red;">Connection error</p>'
+        console.error("Error:", error);
 
-       }
-}  
+        dataContainer.innerHTML =
+            '<p class="loading-text" style="color: red;">Connection error. Please try again.</p>';
 
-//================================================
-//5.FUNCIONES DE REDERIZADO (DOM)
-//================================================ 
+        return null;
+    }
+}
 
-//Funcion para pintar los personajes (Incluye el boton de favoritos)
-function renderCharacters(charactersData){
-    dataContainer.innerHtml =''; //limpiamos la pantalla
+// ================================================
+// 5. FUNCIONES DE RENDERIZADO (DOM)
+// ================================================
+
+// Mostrar personajes
+function renderCharacters(charactersData) {
+    if (!charactersData) return;
+
+    dataContainer.innerHTML = '';
 
     charactersData.forEach(character => {
-        //Determinamos el color del estado (Alive =verde,Dead = rojo)
-        const statusColor = character.status === 'Alive' ? 'lime': 
-                            (characters.status === 'Dead' ? 'red' : 'gray');
 
-        //creamos la carpeta (Card)
+        const statusColor =
+            character.status === 'Alive' ? 'lime' :
+            character.status === 'Dead' ? 'red' : 'gray';
+
         const cardHtml = `
-        <article class="data-card">
-            <img src="${character.image}" alt="${character.name}">
-            <div class="card-info">
-            <h2>${character.name}</h2>
-            <p class="info-label">Status: <span style="color: ${statusColor}">${character.status}</span></p>
-            <p class="info-label">Species: ${character.species}</p>
+            <article class="data-card">
+                <img src="${character.image}" alt="${character.name}">
 
-            <!-- Boton para guardar favoritos. le pasamos el nombre del personaje en una funcion onclick -->
-            <button class="btn-add-fav" onclick="addToFavorites('${character.name}','${character.image}')">
-               🌟 Add to Favorites
-            </button>
-            </div>
-        </article>
+                <div class="card-info">
+                    <h2>${character.name}</h2>
+
+                    <p class="info-label">
+                        Status:
+                        <span style="color: ${statusColor}">
+                            ${character.status}
+                        </span>
+                    </p>
+
+                    <p class="info-label">
+                        Species: ${character.species}
+                    </p>
+
+                    <button class="btn-add-fav"
+                        onclick="addToFavorites('${character.name.replace(/'/g, "\\'")}', '${character.image}')">
+                        🌟 Add to Favorites
+                    </button>
+                </div>
+            </article>
         `;
-    dataContainer.innerHtml += cardHtml;
 
-    })
+        dataContainer.innerHTML += cardHtml;
+    });
 }
 
-//Funcion para pintar ubicaciones (Locations)
-function renderLocations (LocationsData){
-     dataContainer.innerHtml = '';
-     LocationsData.forEach(location => {
-       dataContainer.innerHtml += `
-         <article class="data-card">
-          <div class="card-info">
-             <h2> 🌎 ${location.name}</h2>
-             <p class="infi-label">Type: <span style="color: white;">${location.Type}</span></p>
-             <p class="info-label">Dimencion: ${location.dimension}</p>
-          </div>
-         </article>     
-       `;
-     })
-}
+// Mostrar ubicaciones
+function renderLocations(locationsData) {
+    if (!locationsData) return;
 
-// Funcion para pintar episodios
-function renderEpisodios(episodesData){
-     dataContainer.innerHtml = '';
-     episodesData.forEach(episode => {
-        dataContainer.innerHtml += `
-          < article class="data-card">
-               <div class="card-info">
-                  <h2>  📺 ${episode.name}</h2>
-                  <p class="info-label">Code: <span style="color: lime;">${episode.episode}</span></p>
-                  <p class="info-label">Air Date: ${episode.air-date}</p>
-               </div>
-          </article>
+    dataContainer.innerHTML = '';
+
+    locationsData.forEach(location => {
+        dataContainer.innerHTML += `
+            <article class="data-card">
+                <div class="card-info">
+                    <h2>🌎 ${location.name}</h2>
+
+                    <p class="info-label">
+                        Type: ${location.type}
+                    </p>
+
+                    <p class="info-label">
+                        Dimension: ${location.dimension}
+                    </p>
+                </div>
+            </article>
         `;
-     })
+    });
 }
 
-//================================================
-//6. LOGICA DE FAVORITOS (LOCALSTRORAGE)
-//================================================ 
-//Esta funcion se ejecutacuando damos click en el boton "Add to favorites" de una tarjeta
-function addToFavorites(name, image){
-    // creamos un objeto con los datos del personaje
-    const newFavorite = {name: name, image: image};
+// Mostrar episodios
+function renderEpisodes(episodesData) {
+    if (!episodesData) return;
 
-    //agregamos el objeto a nuestro arreglo de favoritos
-    favoritesArray.push(newFavorite),
+    dataContainer.innerHTML = '';
 
-    // serializmos el arreglo en texto (JSON) y lo guardamos en la memoria del navegador
-    localStrorage.setItems('myFavCharacters',JSON.stringify(favoritesArray));
+    episodesData.forEach(episode => {
+        dataContainer.innerHTML += `
+            <article class="data-card">
+                <div class="card-info">
+                    <h2>📺 ${episode.name}</h2>
 
-    alert(`¡$(name) agregado a favoritos!`);
+                    <p class="info-label">
+                        Code:
+                        <span style="color: lime">
+                            ${episode.episode}
+                        </span>
+                    </p>
+
+                    <p class="info-label">
+                        Air Date: ${episode.air_date}
+                    </p>
+                </div>
+            </article>
+        `;
+    });
 }
 
-// Funcion para leer la memoria y pintar los favoritos
-function renderFavorites(){
-    dataContainer.innerHtml = '';
+// ================================================
+// 6. LOGICA DE FAVORITOS (LOCAL STORAGE)
+// ================================================
 
-    //Leemos la memoria y la convertiremos de texto a arreglo nuvamente
-    const saveData = localStrorage.getItem('myFavCharacters');
+// Agregar un personaje a favoritos
+function addToFavorites(name, image) {
+    const alreadyExists = favoritesArray.some(
+        favorite => favorite.name === name
+    );
 
-if (saceDate) {
-    //Si hay datos, los deserealizar
-    favoritesArray = JSON.parse(saveData);
-
-    if(favoritesArray.length === 0){
-         dataContainer.innerHtml = '<p class="loading-text">No favorites added yet.</p>';
-         return;
+    if (alreadyExists) {
+        alert(`${name} ya esta en favoritos.`);
+        return;
     }
 
-      //pintamos cada favorito guardado
-      favoritesArray.forEach(fav => {
-        dataContainer.innerHtml += `
-        <article class="data-card">
-               <img src="${fav.image} alt="${fav.name}">
-               <div class="card-info">
-                  <h2> 🌟 ${fav.name}</h2>
-               </div>
-        </article>
-        `;
-      });
-    }else{
-      //Si la memoria esta vacia 
-      dataContainer.innerHtml = '<p class="loading-text">No favorites added yet.</p>';
-    }
+    const newFavorite = {
+        name: name,
+        image: image
+    };
+
+    favoritesArray.push(newFavorite);
+
+    localStorage.setItem(
+        'myFavCharacters',
+        JSON.stringify(favoritesArray)
+    );
+
+    alert(`¡${name} agregado a favoritos!`);
 }
 
-//================================================
-//7. MANEJO DE EVENTOS DEL MENU
-//================================================ 
+// Mostrar favoritos
+function renderFavorites() {
+    dataContainer.innerHTML = '';
 
-//Funcion auxiliar para resaltar visualmente el boton seleccionado
-function setActiveButton(activeBtn){
+    const saveData = localStorage.getItem('myFavCharacters');
+
+    if (saveData) {
+        favoritesArray = JSON.parse(saveData);
+    } else {
+        favoritesArray = [];
+    }
+
+    if (favoritesArray.length === 0) {
+        dataContainer.innerHTML =
+            '<p class="loading-text">No favorites added yet.</p>';
+        return;
+    }
+
+    favoritesArray.forEach(favorite => {
+        dataContainer.innerHTML += `
+            <article class="data-card">
+                <img src="${favorite.image}" alt="${favorite.name}">
+
+                <div class="card-info">
+                    <h2>🌟 ${favorite.name}</h2>
+                </div>
+            </article>
+        `;
+    });
+}
+
+// ================================================
+// 7. MANEJO DE EVENTOS DEL MENU
+// ================================================
+
+// Resaltar el boton seleccionado
+function setActiveButton(activeBtn) {
     btnCharacters.classList.remove('active');
     btnLocations.classList.remove('active');
     btnEpisodes.classList.remove('active');
@@ -180,44 +232,60 @@ function setActiveButton(activeBtn){
     activeBtn.classList.add('active');
 }
 
-//Evento: clic en personajes
-btnCharacters.addEventListener('click',async () =>{
-        setActiveButton(btnCharacters);
-        const data = await fetchData('/character');
+// Evento: personajes
+btnCharacters.addEventListener('click', async () => {
+    setActiveButton(btnCharacters);
+
+    const data = await fetchData('/character');
+
+    if (data) {
         renderCharacters(data);
+    }
 });
 
-//Evento: clic en Ubicaciones
-btnLocations.addEventListener('click',async () =>{
-        setActiveButton(btnLocations);
-        const data = await fetchData('/location');
+// Evento: ubicaciones
+btnLocations.addEventListener('click', async () => {
+    setActiveButton(btnLocations);
+
+    const data = await fetchData('/location');
+
+    if (data) {
         renderLocations(data);
+    }
 });
 
-//Evento: clic en Episodios
-btnEpisodes.addEventListener('click',async () =>{
-        setActiveButton(btnEpisodes);
-        const data = await fetchData('/episode');
+// Evento: episodios
+btnEpisodes.addEventListener('click', async () => {
+    setActiveButton(btnEpisodes);
+
+    const data = await fetchData('/episode');
+
+    if (data) {
         renderEpisodes(data);
+    }
 });
 
-//Evento: Clic en Favoritos
-btnFavorites.addEventListener('click',async () =>{
-        setActiveButton(btnFavorites);
-        renderFavorites(); //Esta no llama a fetcData, solo LocalStorage
+// Evento: favoritos
+btnFavorites.addEventListener('click', () => {
+    setActiveButton(btnFavorites);
+    renderFavorites();
 });
 
-//================================================
-//8. INICIO AUTOMATICO
-//================================================ 
+// ================================================
+// 8. INICIO AUTOMATICO
+// ================================================
 
-
-//Recuperamos los favoritos al arrancar la pagina
-const previousFavs = localStrorage.getItem('myFavCharacters');
+// Recuperar los favoritos guardados
+const previousFavs = localStorage.getItem('myFavCharacters');
 
 if (previousFavs) {
-        favoritesArray= JSON.parse(previousFavs);
+    try {
+        favoritesArray = JSON.parse(previousFavs);
+    } catch (error) {
+        console.error("Error loading favorites:", error);
+        favoritesArray = [];
+    }
 }
 
-//Simulamos un click en boton personajes para que la pantalla de inicio no salga en blanco
+// Mostrar los personajes al abrir la pagina
 btnCharacters.click();
